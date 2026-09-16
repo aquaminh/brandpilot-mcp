@@ -1,0 +1,51 @@
+{
+  "name": "brandpilot-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for BrandPilot (DesignFlow): browse public design systems, pull a design's continuation bundle and prompt pack, and hand finished external work back - natively from Claude Code, Claude Desktop, Cursor or any MCP client.",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "brandpilot-mcp": "dist/index.js"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./catalog": "./dist/catalog.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "brandpilot",
+    "designflow",
+    "design-system"
+  ],
+  "homepage": "https://brandpilot.dev/docs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aquaminh/brandpilot-mcp.git"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.0"
+  }
+}

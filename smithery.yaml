@@ -1,0 +1,20 @@
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties:
+      BRANDPILOT_ORIGIN:
+        type: string
+        description: "Target BrandPilot origin (default https://brandpilot.dev)"
+      DESIGNFLOW_HANDOFF_KEY:
+        type: string
+        description: "Optional design handoff key for design-scoped tools (get_design_handoff, get_design_prompt_pack, import_design_artifacts, finish_external_design). Each tool also accepts a per-call handoffKey argument."
+  commandFunction: |-
+    (config) => ({
+      command: 'npx',
+      args: ['-y', 'brandpilot-mcp'],
+      env: {
+        ...(config.BRANDPILOT_ORIGIN ? { BRANDPILOT_ORIGIN: config.BRANDPILOT_ORIGIN } : {}),
+        ...(config.DESIGNFLOW_HANDOFF_KEY ? { DESIGNFLOW_HANDOFF_KEY: config.DESIGNFLOW_HANDOFF_KEY } : {}),
+      },
+    })
