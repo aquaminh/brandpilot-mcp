@@ -1,6 +1,7 @@
 {
   "name": "brandpilot-mcp",
-  "version": "0.1.0",
+  "mcpName": "dev.brandpilot/brandpilot-mcp",
+  "version": "0.1.1",
   "description": "MCP server for BrandPilot (DesignFlow): browse public design systems, pull a design's continuation bundle and prompt pack, and hand finished external work back - natively from Claude Code, Claude Desktop, Cursor or any MCP client.",
   "type": "module",
   "license": "MIT",

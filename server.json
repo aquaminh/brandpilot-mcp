@@ -1,0 +1,38 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "dev.brandpilot/brandpilot-mcp",
+  "description": "MCP server for BrandPilot (DesignFlow): browse public design systems, pull a design's continuation bundle and prompt pack, and hand finished external work back - natively from Claude Code, Claude Desktop, Cursor or any MCP client.",
+  "repository": {
+    "url": "https://github.com/aquaminh/brandpilot-mcp",
+    "source": "github"
+  },
+  "websiteUrl": "https://brandpilot.dev/docs",
+  "version": "0.1.1",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "brandpilot-mcp",
+      "version": "0.1.1",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "DESIGNFLOW_HANDOFF_KEY",
+          "description": "Design handoff key from a BrandPilot design page (Continue this design, Copy API key). Optional: only the design-scoped tools need it, and each of them also accepts an explicit handoffKey argument.",
+          "isRequired": false,
+          "isSecret": true,
+          "format": "string"
+        },
+        {
+          "name": "BRANDPILOT_ORIGIN",
+          "description": "BrandPilot origin the server talks to. Defaults to https://brandpilot.dev.",
+          "isRequired": false,
+          "isSecret": false,
+          "format": "string",
+          "default": "https://brandpilot.dev"
+        }
+      ]
+    }
+  ]
+}
