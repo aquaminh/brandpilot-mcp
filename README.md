@@ -76,9 +76,18 @@ open to any MCP client. Design-scoped tools need a handoff key (see below).
 | `get_system_tokens` | none | Export a system's tokens (globals-css, colors-ts, spacing-ts, typography-ts, tailwind-theme, brand-manifest) |
 | `get_agent_prompt` | none | Markdown onboarding doc with copy-paste prompts for bootstrapping a design package |
 | `get_design_handoff` | handoff key | A design's continuation bundle: brief, tokens, board digest, continuation contract, inventory, coherence audit |
-| `get_design_prompt_pack` | handoff key | The sequential Claude Design prompt pack for continuing a design |
+| `get_design_prompt_pack` | handoff key | The sequential Claude Design prompt pack for continuing a design: v1 by default, the v2 explore/lock passes with `pass`, or the copy map |
 | `import_design_artifacts` | handoff key | Import externally designed components/pages/assets back as DRAFT for review |
 | `finish_external_design` | handoff key | Resume a mid-flow external design run at the coherence audit |
+
+## Prompt pack v2
+
+`get_design_prompt_pack` returns the v1 pack when called with only `designId`. The v2 pack runs in two passes in one Claude Design project:
+
+1. `pass: "explore"` - every surface asks for 2-3 clearly different directions with a short critique. Add `with3d: true` for one 3D Objects prompt.
+2. `pass: "lock", direction: "<the direction you picked>"` - every surface is built in the chosen direction (max 2000 characters, required for this pass).
+
+`format: "json"` returns the structured pack instead of markdown, and `format: "copy-map"` returns the copy map the v2 pack lists as a project file. `direction` and `with3d` without a `pass` are rejected rather than silently returning v1.
 
 ## The handoff key
 

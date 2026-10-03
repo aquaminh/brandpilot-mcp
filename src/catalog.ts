@@ -1,11 +1,11 @@
 /**
  * The single source of truth for every tool the BrandPilot MCP server
- * exposes. `scripts/mcp-server.ts` registers its tools by iterating this
- * array (never a hand-typed parallel list), `GET /api/v1/mcp/tools` (W2.1)
- * re-serves it as JSON, and `/docs` (W2.1) renders the tool table from it -
- * so the app, the deployed server and the public npm package (W2.2,
- * `packages/brandpilot-mcp/src/catalog.ts`, currently a byte-identical copy
- * pending publish) cannot describe three different tool lists.
+ * exposes. `src/index.ts` registers its tools by iterating this array
+ * (never a hand-typed parallel list), and the DesignFlow app re-exports it
+ * as `brandpilot-mcp/catalog` (`src/lib/mcp/catalog.ts`) to serve
+ * `GET /api/v1/mcp/tools` and render the `/docs` tool table - so the app
+ * and the published server cannot describe two different tool lists. A
+ * change here reaches the app only after its dependency is bumped.
  *
  * Kept deliberately flat and side-effect-free (no zod, no fetch) so it can
  * be imported by a stdio server, a route handler, and a static npm package
@@ -123,9 +123,39 @@ export const TOOL_CATALOG: ToolSpec[] = [
   {
     name: 'get_design_prompt_pack',
     title: 'Get the design\'s Claude Design prompt pack',
-    summary: 'The app-authored sequential Claude Design prompt pack (markdown): anchor sheet first, then template-aware component sheets and page prompts, each embedding the latitude contract in force. Regenerated from live data on every call.',
+    summary: 'The app-authored sequential Claude Design prompt pack (markdown): anchor sheet first, then template-aware component sheets and page prompts, each embedding the latitude contract in force. Regenerated from live data on every call. Without pass it returns the v1 pack; pass=explore then pass=lock with the chosen direction return the v2 two-pass pack, and format=copy-map returns the copy map the v2 pack lists as a project file.',
     auth: 'handoff-key',
-    args: [designIdArg, handoffKeyArg],
+    args: [
+      designIdArg,
+      handoffKeyArg,
+      {
+        name: 'pass',
+        type: 'string',
+        required: false,
+        enum: ['explore', 'lock'],
+        description: 'v2 pass: "explore" asks for 2-3 directions per surface, "lock" builds every surface in the chosen direction (needs direction). Omit for the v1 pack',
+      },
+      {
+        name: 'direction',
+        type: 'string',
+        required: false,
+        description: 'The direction chosen from the explore pass, max 2000 characters. Required with pass "lock"; only valid with a pass',
+      },
+      {
+        name: 'with3d',
+        type: 'boolean',
+        required: false,
+        description: 'Add one 3D Objects prompt to a v2 pack (only valid with a pass)',
+      },
+      {
+        name: 'format',
+        type: 'string',
+        required: false,
+        enum: ['markdown', 'json', 'copy-map'],
+        default: 'markdown',
+        description: 'markdown (default), json for the structured pack, or copy-map for the copy map the v2 pack lists as a project file',
+      },
+    ],
     endpoint: '/api/v1/designs/{designId}/prompt-pack',
     method: 'GET',
   },

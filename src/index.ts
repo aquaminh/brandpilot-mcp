@@ -4,11 +4,11 @@
  *
  * Deliberately HTTP-backed, never a second DB access path: any machine with
  * network access to BRANDPILOT_ORIGIN can run it - no DB credentials, no
- * Prisma. Tool registration is data-driven from `TOOL_CATALOG` (./catalog)
- * so the published package and the app's own `scripts/mcp-server.ts` cannot
- * describe two different tool lists (kept in sync by hand today, see
- * docs/mcp-listing.md in the app repo for the publish gate; this file
- * mirrors app-dev/apps/designflow/scripts/mcp-server.ts's handler logic).
+ * Prisma. Tool registration is data-driven from `TOOL_CATALOG` (./catalog),
+ * the same array the DesignFlow app re-exports for `/docs` and
+ * `GET /api/v1/mcp/tools`, so the two cannot describe different tool lists
+ * (the app's own server file is gone; its scripts/designflow-mcp-wrapper.sh
+ * execs this package).
  *
  * Env:
  *  - BRANDPILOT_ORIGIN (default https://brandpilot.dev)
@@ -22,6 +22,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z, type ZodRawShape, type ZodTypeAny } from 'zod';
 import { TOOL_CATALOG, type ToolArgSpec, type ToolSpec } from './catalog.js';
+import { promptPackPath, type PromptPackQuery } from './prompt-pack-query.js';
 
 const BASE = process.env.BRANDPILOT_ORIGIN ?? 'https://brandpilot.dev';
 const ENV_KEY = process.env.DESIGNFLOW_HANDOFF_KEY;
@@ -154,8 +155,12 @@ const HANDLERS: Record<string, ToolHandler> = {
   'get_design_handoff': async ({ designId, handoffKey }) =>
     wrap(() => request(`/api/v1/designs/${designId}/handoff`, { key: resolveKey(handoffKey as string | undefined) })),
 
-  'get_design_prompt_pack': async ({ designId, handoffKey }) =>
-    wrap(() => request(`/api/v1/designs/${designId}/prompt-pack`, { key: resolveKey(handoffKey as string | undefined) })),
+  'get_design_prompt_pack': async ({ designId, handoffKey, pass, direction, with3d, format }) =>
+    wrap(() =>
+      request(promptPackPath(String(designId), { pass, direction, with3d, format } as PromptPackQuery), {
+        key: resolveKey(handoffKey as string | undefined),
+      }),
+    ),
 
   'import_design_artifacts': async ({ designId, handoffKey, components, pages, assets, source }) =>
     wrap(() =>
@@ -176,7 +181,7 @@ const HANDLERS: Record<string, ToolHandler> = {
     ),
 };
 
-const server = new McpServer({ name: 'brandpilot', version: '0.1.0' });
+const server = new McpServer({ name: 'brandpilot', version: '0.2.0' });
 
 for (const spec of TOOL_CATALOG) {
   const handler = HANDLERS[spec.name];
