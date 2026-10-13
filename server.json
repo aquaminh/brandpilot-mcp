@@ -7,22 +7,30 @@
     "source": "github"
   },
   "websiteUrl": "https://brandpilot.dev/docs",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "brandpilot-mcp",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "transport": {
         "type": "stdio"
       },
       "environmentVariables": [
         {
-          "name": "DESIGNFLOW_HANDOFF_KEY",
-          "description": "Design handoff key from a BrandPilot design page (Continue this design, Copy API key). Optional: only the design-scoped tools need it, and each of them also accepts an explicit handoffKey argument.",
+          "name": "BRANDPILOT_API_KEY",
+          "description": "Workspace API key (bp_live_...) from BrandPilot. When set, the server proxies to the hosted BrandPilot MCP and serves its full tool list.",
           "isRequired": false,
           "isSecret": true,
           "format": "string"
+        },
+        {
+          "name": "BRANDPILOT_MCP_URL",
+          "description": "Hosted MCP endpoint used with BRANDPILOT_API_KEY. Defaults to https://brandpilot.dev/api/mcp.",
+          "isRequired": false,
+          "isSecret": false,
+          "format": "string",
+          "default": "https://brandpilot.dev/api/mcp"
         },
         {
           "name": "BRANDPILOT_ORIGIN",
@@ -31,6 +39,13 @@
           "isSecret": false,
           "format": "string",
           "default": "https://brandpilot.dev"
+        },
+        {
+          "name": "DESIGNFLOW_HANDOFF_KEY",
+          "description": "Deprecated legacy design handoff key, retired on 2027-01-31; use BRANDPILOT_API_KEY. Ignored when BRANDPILOT_API_KEY is set.",
+          "isRequired": false,
+          "isSecret": true,
+          "format": "string"
         }
       ]
     }

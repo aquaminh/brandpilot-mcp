@@ -1,73 +1,83 @@
 # brandpilot-mcp
 
-MCP server for [BrandPilot](https://brandpilot.dev) (DesignFlow): browse the
-public design-system pool, pull a design's continuation bundle and Claude
-Design prompt pack, import externally designed work back, and finish a
-mid-flow external design run - natively from Claude Code, Claude Desktop,
-Cursor, or any other MCP-capable agent.
+MCP server for [BrandPilot](https://brandpilot.dev) (DesignFlow): bring a brand into your coding agent - list your brands, read a design's context and continuation contract, install its repo rules pack and tokens, and fetch its Claude Design kit - natively from Claude Code, Codex, Cursor, Claude Desktop or any other MCP client.
 
-It is a thin HTTP wrapper over BrandPilot's public `v1` API. No database
-access, no credentials required for the public tools - any machine with
-network access to `brandpilot.dev` can run it.
+The package runs in one of two modes:
 
-> **Not published yet.** The source will live in the public
-> `aquaminh/brandpilot-mcp` repo once the owner creates it; nothing is on
-> npm yet - the "BrandPilot" name is pending a trademark search. See
-> `docs/mcp-listing.md` in the DesignFlow app repo for the gate. Once
-> published, install with `npx brandpilot-mcp` as shown below.
+- **With a workspace API key** (`BRANDPILOT_API_KEY`): a thin stdio proxy onto the hosted BrandPilot MCP at `https://brandpilot.dev/api/mcp`. Every `tools/list`, `tools/call`, `prompts/list` and `prompts/get` is forwarded and the answer relayed, so the tool list is always the one BrandPilot serves today - new tools arrive without a package update.
+- **Without one**: the legacy 0.2.x server - the public design-system tools, plus the design-scoped tools behind a per-design handoff key (deprecated, see [Legacy handoff keys](#legacy-handoff-keys)).
 
-## Install
+It never touches a database; any machine with network access to `brandpilot.dev` can run it. Requires Node.js 20 or newer.
+
+## Connect with an API key
+
+Create a workspace API key in BrandPilot under **Settings, API keys**. It starts with `bp_live_`. Replace `bp_live_your_key_here` below with it, and keep it out of committed files.
 
 ### Claude Code
 
-Add to your project's `.mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "brandpilot": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "brandpilot-mcp"]
-    }
-  }
-}
+```bash
+claude mcp add brandpilot --scope user -e BRANDPILOT_API_KEY=bp_live_your_key_here -- npx -y brandpilot-mcp
 ```
 
-### Claude Desktop
+Then run `/mcp` in Claude Code to confirm `brandpilot` is connected, and ask "Ask BrandPilot who I am and list my brands".
 
-Add to `claude_desktop_config.json`:
+### Codex
 
-```json
-{
-  "mcpServers": {
-    "brandpilot": {
-      "command": "npx",
-      "args": ["-y", "brandpilot-mcp"]
-    }
-  }
-}
+```bash
+codex mcp add brandpilot --env BRANDPILOT_API_KEY=bp_live_your_key_here -- npx -y brandpilot-mcp
 ```
+
+or in `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.brandpilot]
+command = "npx"
+args = ["-y", "brandpilot-mcp"]
+
+[mcp_servers.brandpilot.env]
+BRANDPILOT_API_KEY = "bp_live_your_key_here"
+```
+
+To keep the key out of the file, export `BRANDPILOT_API_KEY` in your shell and use `env_vars = ["BRANDPILOT_API_KEY"]` in place of the `env` table.
 
 ### Cursor
 
-Add to `.cursor/mcp.json`:
+Add to `~/.cursor/mcp.json` (all projects) or `.cursor/mcp.json` (one project):
 
 ```json
 {
   "mcpServers": {
     "brandpilot": {
       "command": "npx",
-      "args": ["-y", "brandpilot-mcp"]
+      "args": ["-y", "brandpilot-mcp"],
+      "env": {
+        "BRANDPILOT_API_KEY": "bp_live_your_key_here"
+      }
     }
   }
 }
 ```
 
+### Any other MCP client
+
+Run `npx -y brandpilot-mcp` as a stdio server with `BRANDPILOT_API_KEY` in its environment. The same shape works in Claude Desktop's `claude_desktop_config.json`.
+
+### What the errors mean
+
+| Message | Cause | Fix |
+|---------|-------|-----|
+| BrandPilot rejected the API key (HTTP 401) | The key is mistyped, expired or revoked | Create a new key and restart the server |
+| The API key does not have the permission this call needs (HTTP 403) | The key lacks a scope (for example a read-only key calling `finish_external_design`) | Use a key with that scope |
+| The hosted BrandPilot MCP is not enabled (HTTP 404) | The hosted MCP is not switched on for that BrandPilot instance yet | Unset `BRANDPILOT_API_KEY` to use the legacy tools meanwhile, or check `BRANDPILOT_MCP_URL` |
+| did not answer within N s | The hosted call took longer than `BRANDPILOT_TIMEOUT_MS` | Retry; raise the timeout for slow calls |
+
+The key is sent only in the `Authorization` header and is never printed, including in error messages and on stderr.
+
 ## Tools
 
-The public tools need no account or API key - the curated public pool is
-open to any MCP client. Design-scoped tools need a handoff key (see below).
+In API-key mode the tools and prompts come from the hosted server (`whoami`, `list_brands`, `get_design_context`, `get_repo_rules_pack`, `get_claude_design_kit`, `finish_external_design` and more, plus the deprecated aliases below); the current list is at `https://brandpilot.dev/api/v1/mcp/tools` and on [brandpilot.dev/docs](https://brandpilot.dev/docs). A good first call is `whoami`.
+
+The legacy mode serves these eight tools:
 
 | Tool | Auth | What it does |
 |------|------|---------------|
@@ -80,6 +90,8 @@ open to any MCP client. Design-scoped tools need a handoff key (see below).
 | `import_design_artifacts` | handoff key | Import externally designed components/pages/assets back as DRAFT for review |
 | `finish_external_design` | handoff key | Resume a mid-flow external design run at the coherence audit |
 
+On the hosted server, `list_systems`, `get_agent_prompt` and `get_design_handoff` are deprecated aliases of `list_brands`, `get_repo_rules_pack` and `get_design_context`.
+
 ## Prompt pack v2
 
 `get_design_prompt_pack` returns the v1 pack when called with only `designId`. The v2 pack runs in two passes in one Claude Design project:
@@ -89,38 +101,21 @@ open to any MCP client. Design-scoped tools need a handoff key (see below).
 
 `format: "json"` returns the structured pack instead of markdown, and `format: "copy-map"` returns the copy map the v2 pack lists as a project file. `direction` and `with3d` without a `pass` are rejected rather than silently returning v1.
 
-## The handoff key
+## Legacy handoff keys
 
-Design-scoped tools (`get_design_handoff`, `get_design_prompt_pack`,
-`import_design_artifacts`, `finish_external_design`) require a Bearer key
-scoped to one design. Mint or view it from the design page
-(`/designs/<id>`, section "Continue this design", "Copy API key").
+Legacy per-design handoff keys are deprecated and **stop working on 2027-01-31**. Move to a workspace API key: one key covers every design in the workspace.
 
-Pass it either as an environment variable when launching the server:
-
-```json
-{
-  "mcpServers": {
-    "brandpilot": {
-      "command": "npx",
-      "args": ["-y", "brandpilot-mcp"],
-      "env": {
-        "DESIGNFLOW_HANDOFF_KEY": "your-key-here"
-      }
-    }
-  }
-}
-```
-
-or as a per-call `handoffKey` argument, which overrides the environment
-variable for that one call.
+Until then, the legacy design-scoped tools (`get_design_handoff`, `get_design_prompt_pack`, `import_design_artifacts`, `finish_external_design`) accept a Bearer key scoped to one design, minted on the design page (`/designs/<id>`, section "Continue this design", "Copy API key"). Pass it as `DESIGNFLOW_HANDOFF_KEY` in the server's environment, or as a per-call `handoffKey` argument, which overrides the environment variable for that one call. When `DESIGNFLOW_HANDOFF_KEY` is set the server prints one deprecation line to stderr at startup. When `BRANDPILOT_API_KEY` is also set, the API key wins and the handoff key is ignored.
 
 ## Environment variables
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `BRANDPILOT_ORIGIN` | `https://brandpilot.dev` | Target origin - override to point at a local dev server |
-| `DESIGNFLOW_HANDOFF_KEY` | (none) | Default Bearer key for design-scoped tools |
+| `BRANDPILOT_API_KEY` | (none) | Workspace API key; turns on proxy mode |
+| `BRANDPILOT_MCP_URL` | `${BRANDPILOT_ORIGIN}/api/mcp` | Hosted MCP endpoint in proxy mode. Must be https, except on localhost |
+| `BRANDPILOT_TIMEOUT_MS` | `70000` | Per-request timeout in proxy mode (1000 to 600000) |
+| `BRANDPILOT_ORIGIN` | `https://brandpilot.dev` | Origin for the legacy tools, and the base of the default `BRANDPILOT_MCP_URL` - override to point at a local dev server |
+| `DESIGNFLOW_HANDOFF_KEY` | (none) | Deprecated default Bearer key for the legacy design-scoped tools |
 
 ## Local development
 
@@ -130,6 +125,6 @@ npm run build
 npm test
 ```
 
-`npm link` then a `.mcp.json` pointing at the linked bin is the fastest way
-to verify against a live server: confirm `list_systems` returns the curated
-pool and nothing private.
+`npm link` then an MCP config pointing at the linked bin is the fastest way to verify against a live server: in API-key mode confirm `whoami` names your workspace; without a key confirm `list_systems` returns the curated pool and nothing private.
+
+See [CHANGELOG.md](CHANGELOG.md) for release notes.

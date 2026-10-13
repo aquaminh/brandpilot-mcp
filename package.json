@@ -1,8 +1,8 @@
 {
   "name": "brandpilot-mcp",
   "mcpName": "dev.brandpilot/brandpilot-mcp",
-  "version": "0.2.0",
-  "description": "MCP server for BrandPilot (DesignFlow): browse public design systems, pull a design's continuation bundle and prompt pack, and hand finished external work back - natively from Claude Code, Claude Desktop, Cursor or any MCP client.",
+  "version": "0.3.0",
+  "description": "MCP server for BrandPilot (DesignFlow): with a workspace API key it proxies the hosted BrandPilot MCP (brands, design context, repo rules pack, Claude Design kit); without one it serves the public design-system tools - from Claude Code, Codex, Cursor or any MCP client.",
   "type": "module",
   "license": "MIT",
   "bin": {
@@ -14,7 +14,8 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md"
   ],
   "engines": {
     "node": ">=20"

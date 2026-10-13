@@ -3,17 +3,25 @@ startCommand:
   configSchema:
     type: object
     properties:
+      BRANDPILOT_API_KEY:
+        type: string
+        description: "Workspace API key (bp_live_...) from BrandPilot. When set, the server proxies to the hosted BrandPilot MCP and serves its full tool list."
+      BRANDPILOT_MCP_URL:
+        type: string
+        description: "Hosted MCP endpoint used with BRANDPILOT_API_KEY (default https://brandpilot.dev/api/mcp)"
       BRANDPILOT_ORIGIN:
         type: string
-        description: "Target BrandPilot origin (default https://brandpilot.dev)"
+        description: "Target BrandPilot origin for the legacy tools (default https://brandpilot.dev)"
       DESIGNFLOW_HANDOFF_KEY:
         type: string
-        description: "Optional design handoff key for design-scoped tools (get_design_handoff, get_design_prompt_pack, import_design_artifacts, finish_external_design). Each tool also accepts a per-call handoffKey argument."
+        description: "Deprecated legacy design handoff key, retired on 2027-01-31; use BRANDPILOT_API_KEY. Ignored when BRANDPILOT_API_KEY is set."
   commandFunction: |-
     (config) => ({
       command: 'npx',
       args: ['-y', 'brandpilot-mcp'],
       env: {
+        ...(config.BRANDPILOT_API_KEY ? { BRANDPILOT_API_KEY: config.BRANDPILOT_API_KEY } : {}),
+        ...(config.BRANDPILOT_MCP_URL ? { BRANDPILOT_MCP_URL: config.BRANDPILOT_MCP_URL } : {}),
         ...(config.BRANDPILOT_ORIGIN ? { BRANDPILOT_ORIGIN: config.BRANDPILOT_ORIGIN } : {}),
         ...(config.DESIGNFLOW_HANDOFF_KEY ? { DESIGNFLOW_HANDOFF_KEY: config.DESIGNFLOW_HANDOFF_KEY } : {}),
       },
