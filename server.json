@@ -49,5 +49,20 @@
         }
       ]
     }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://brandpilot.dev/api/mcp",
+      "headers": [
+        {
+          "name": "Authorization",
+          "description": "Bearer followed by a workspace API key from BrandPilot (Settings, API keys), e.g. \"Bearer bp_live_...\"",
+          "isRequired": true,
+          "isSecret": true,
+          "format": "string"
+        }
+      ]
+    }
   ]
 }
