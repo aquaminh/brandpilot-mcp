@@ -1,7 +1,7 @@
 /**
  * The single source of truth for every tool the BrandPilot MCP server
  * exposes. `src/index.ts` registers its tools by iterating this array
- * (never a hand-typed parallel list), and the DesignFlow app re-exports it
+ * (never a hand-typed parallel list), and the BrandPilot app re-exports it
  * as `brandpilot-mcp/catalog` (`src/lib/mcp/catalog.ts`) to serve
  * `GET /api/v1/mcp/tools` and render the `/docs` tool table - so the app
  * and the published server cannot describe two different tool lists. A
@@ -162,7 +162,7 @@ export const TOOL_CATALOG: ToolSpec[] = [
   {
     name: 'import_design_artifacts',
     title: 'Import externally designed artifacts',
-    summary: 'Import externally designed work back into DesignFlow. Rows land as DRAFT on the carrier project\'s Deliverables tab for human review - nothing auto-approves. Components: self-contained HTML with inline styles. Pages: standalone HTML documents. Assets: PNG (base64 or URL) with optional sourceCode.',
+    summary: 'Import externally designed work back into BrandPilot. Rows land as DRAFT on the carrier project\'s Deliverables tab for human review - nothing auto-approves. Components: self-contained HTML with inline styles. Pages: standalone HTML documents. Assets: PNG (base64 or URL) with optional sourceCode.',
     auth: 'handoff-key',
     args: [
       designIdArg,

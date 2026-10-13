@@ -16,7 +16,7 @@
 export const DEFAULT_ORIGIN = 'https://brandpilot.dev';
 /** Slightly above the hosted route's 60 s maxDuration, so its own timeout answer arrives first. */
 export const DEFAULT_TIMEOUT_MS = 70_000;
-/** The handoff-key sunset (DesignFlow HANDOFF_SUNSET). */
+/** The handoff-key sunset (HANDOFF_SUNSET in the BrandPilot app). */
 export const LEGACY_KEY_SUNSET = '2027-01-31';
 
 export interface ProxyConfig {

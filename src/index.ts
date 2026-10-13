@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * brandpilot-mcp: the stdio MCP server for BrandPilot (DesignFlow).
+ * brandpilot-mcp: the stdio MCP server for BrandPilot.
  *
  * Two modes, picked from the environment by ./config:
  *  - BRANDPILOT_API_KEY set: a thin proxy onto the hosted BrandPilot MCP

@@ -2,7 +2,7 @@
  * Builds the request path for `get_design_prompt_pack`. Kept apart from
  * `index.ts` (which connects stdio on import) so it is unit-testable.
  *
- * The route (`/api/v1/designs/{id}/prompt-pack` in the DesignFlow app)
+ * The route (`/api/v1/designs/{id}/prompt-pack` in the BrandPilot app)
  * serves the v1 pack when `pass` is absent and silently ignores `direction`
  * and `with3d` there, so an agent that sent them without `pass` would get
  * v1 while believing it asked for v2 - this rejects that combination

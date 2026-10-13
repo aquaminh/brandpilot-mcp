@@ -1,6 +1,6 @@
 # brandpilot-mcp
 
-MCP server for [BrandPilot](https://brandpilot.dev) (DesignFlow): bring a brand into your coding agent - list your brands, read a design's context and continuation contract, install its repo rules pack and tokens, and fetch its Claude Design kit - natively from Claude Code, Codex, Cursor, Claude Desktop or any other MCP client.
+MCP server for [BrandPilot](https://brandpilot.dev): bring a brand into your coding agent - list your brands, read a design's context and continuation contract, install its repo rules pack and tokens, and fetch its Claude Design kit - natively from Claude Code, Codex, Cursor, Claude Desktop or any other MCP client.
 
 The package runs in one of two modes:
 

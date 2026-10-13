@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.1 - 2026-10-13
+
+### Changed
+
+- Tool summaries and package metadata name the product BrandPilot only.
+
 ## 0.3.0 - 2026-10-13
 
 ### Added
